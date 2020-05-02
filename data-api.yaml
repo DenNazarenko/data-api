@@ -1,0 +1,357 @@
+openapi: 3.0.0
+info:
+  title: Data api
+  version: '1.0'
+servers: []
+paths:
+  '/visitors/{code}':
+    get:
+      summary: Get a visitor
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visitor'
+            application/xml:
+              schema:
+                type: object
+                properties: {}
+      operationId: get-visitors-code
+      tags:
+        - visitor
+    parameters:
+      - schema:
+          type: string
+        name: code
+        in: path
+        required: true
+  /visitors:
+    get:
+      summary: Get all visitors
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Visitor'
+      operationId: get-visitors
+      tags:
+        - visitor
+    post:
+      summary: Create a visitor
+      operationId: post-visitors
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+      description: The state will be mapped to visit events. The events will be saved. Not the state
+      tags:
+        - visitor
+  /events:
+    parameters: []
+    get:
+      summary: Get all events
+      tags:
+        - event
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/ConversionVisitEvent'
+                    - $ref: '#/components/schemas/TargetingVisitEvent'
+                    - $ref: '#/components/schemas/GeolocationVisitEvent'
+                    - $ref: '#/components/schemas/ActivityVisitEvent'
+                    - $ref: '#/components/schemas/CustomDataVisitEvent'
+              examples:
+                example-1:
+                  value:
+                    - scriptVersion: '20190115'
+                      'timestamp:': 1588072517454
+                      siteCode: 4eokxha0ov
+                      nonce: F3D5344B4E809857
+                      type: CONVERSIONS
+                      visitorCode: k845lhglce2cxov4
+                      visitNumber: 1
+                      goalId: 76794
+                      number: 1
+                    - scriptVersion: '20190115'
+                      'timestamp:': 1588072517454
+                      siteCode: 4eokxha0ov
+                      nonce: F0E99EB0544193AB
+                      type: CUSTOMDATA
+                      visitorCode: k845lhglce2cxov4
+                      visitNumber: 3
+                      indexes:
+                        - 14
+                      valueToCount14:
+                        - - ''
+                          - 1
+                      overwrite14: true
+      operationId: get-events
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: visitorCode
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: visitNumber
+          required: true
+    post:
+      summary: Create visit events
+      operationId: post-events
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                anyOf:
+                  - $ref: '#/components/schemas/ConversionVisitEvent'
+                  - $ref: '#/components/schemas/TargetingVisitEvent'
+                  - $ref: '#/components/schemas/GeolocationVisitEvent'
+                  - $ref: '#/components/schemas/ActivityVisitEvent'
+                  - $ref: '#/components/schemas/CustomDataVisitEvent'
+            examples:
+              example-1:
+                value:
+                  - scriptVersion: '20190115'
+                    'timestamp:': 1588072517454
+                    siteCode: 4eokxha0ov
+                    nonce: F3D5344B4E809857
+                    type: CONVERSIONS
+                    visitorCode: k845lhglce2cxov4
+                    visitNumber: 1
+                    goalId: 76794
+                    number: 1
+                  - scriptVersion: '20190115'
+                    'timestamp:': 1588072517454
+                    siteCode: 4eokxha0ov
+                    nonce: F0E99EB0544193AB
+                    type: CUSTOMDATA
+                    visitorCode: k845lhglce2cxov4
+                    visitNumber: 3
+                    indexes:
+                      - 14
+                    valueToCount14:
+                      - - ''
+                        - 1
+                    overwrite14: true
+      tags:
+        - event
+  /visits:
+    get:
+      summary: Get visits
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Visit'
+      operationId: get-visits
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: visitorCode
+          required: true
+      tags:
+        - visit
+    post:
+      summary: Create a visit
+      operationId: post-visits
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: integer
+      description: The state will be mapped to visit events. The events will be saved. Not the state
+      tags:
+        - visit
+  '/visits/{number}':
+    parameters:
+      - schema:
+          type: string
+        name: number
+        in: path
+        required: true
+    get:
+      summary: Get a visit
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+      operationId: get-visits-number
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: visitorCode
+          required: true
+      tags:
+        - visit
+components:
+  schemas:
+    VisitEvent:
+      title: VisitEvent
+      type: object
+      x-examples:
+        example-1: {}
+      properties:
+        scriptVersion:
+          type: string
+        'timestamp:':
+          type: integer
+        siteCode:
+          type: string
+        nonce:
+          type: string
+        type:
+          type: string
+          enum:
+            - CONVERSIONS
+            - TARGETING
+            - GEOLOCOCATION
+            - ACTIVITY
+            - CUSTOMDATA
+        visitorCode:
+          type: string
+        visitNumber:
+          type: integer
+      required:
+        - scriptVersion
+        - 'timestamp:'
+        - siteCode
+        - nonce
+        - type
+        - visitorCode
+        - visitNumber
+    ConversionVisitEvent:
+      title: ConversionVisitEvent
+      allOf:
+        - $ref: '#/components/schemas/VisitEvent'
+        - type: object
+          properties:
+            goalId:
+              type: integer
+            number:
+              type: integer
+          required:
+            - goalId
+            - number
+      x-examples:
+        example-1:
+          scriptVersion: '20190115'
+          'timestamp:': 1588072517454
+          siteCode: 4eokxha0ov
+          nonce: string
+          type: CONVERSIONS
+          visitorCode: k845lhglce2cxov4
+          visitNumber: 1
+          goalId: 76794
+          number: 1
+    TargetingVisitEvent:
+      title: TargetingVisitEvent
+      allOf:
+        - $ref: '#/components/schemas/VisitEvent'
+        - type: object
+          properties:
+            tsId:
+              type: integer
+            number:
+              type: integer
+          required:
+            - tsId
+            - number
+    GeolocationVisitEvent:
+      allOf:
+        - $ref: '#/components/schemas/VisitEvent'
+        - type: object
+          properties:
+            country:
+              type: string
+            latitude:
+              type: number
+            longitude:
+              type: number
+          required:
+            - country
+            - latitude
+    CustomDataVisitEvent:
+      allOf:
+        - $ref: '#/components/schemas/VisitEvent'
+        - type: object
+          properties:
+            indexes:
+              type: array
+              items:
+                type: integer
+            valueToCount14:
+              type: array
+              items: {}
+            overwrite14:
+              type: boolean
+          required:
+            - indexes
+            - valueToCount14
+            - overwrite14
+      x-examples: {}
+    ActivityVisitEvent:
+      allOf:
+        - $ref: '#/components/schemas/VisitEvent'
+        - type: object
+          properties:
+            tabCount:
+              type: integer
+            numberClicks:
+              type: integer
+            active:
+              type: boolean
+    Visit:
+      title: Visit
+      type: object
+      properties:
+        number:
+          type: integer
+      required:
+        - number
+    Visitor:
+      title: Visitor
+      type: object
+      properties:
+        code:
+          type: integer
+      required:
+        - code
